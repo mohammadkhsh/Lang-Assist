@@ -3,7 +3,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from datetime import datetime
 import os
 import csv
-import taha
+import llm_responder
 
 # Define states for conversation
 ASK_NAME, ASK_AGE, ASK_TASK_SELECTION, ASK_TASK1_PHOTO, ASK_TASK1_QUESTION, ASK_TASK2_QUESTION, ASK_TASK1_ANSWER, ASK_TASK2_ANSWER = range(8)
