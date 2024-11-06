@@ -32,4 +32,4 @@ The IELTS Writing Assistant is an intelligent tool designed to help IELTS candid
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/IELTS-writing-assistant.git
+   git clone https://github.com/mohammadkhsh/Lang-Assist.git
