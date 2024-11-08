@@ -105,13 +105,15 @@ async def ask_task1_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     context.user_data["task1_answer"] = update.message.text
 
     # Dummy LLM assessment
-    llm_response = dummy_llm_assessment(
+    gen_resp, gram_resp, vocab_resp, TaskAchieve_resp  = dummy_llm_assessment(
         image_path=context.user_data.get("task1_photo", ""),
         question=context.user_data["task1_question"],
         sample_answer=context.user_data["task1_answer"]
     )
-
-    await update.message.reply_text(f"Here is the assessment for Task 1:\n{llm_response}")
+    await update.message.reply_text(f"GeneralAnalysis:\n{gen_resp}")
+    await update.message.reply_text(f"Grammer Analysis:\n{gram_resp}")
+    await update.message.reply_text(f"Vocabulary Analysis:\n{vocab_resp}")
+    await update.message.reply_text(f"Task Achievement Analysis:\n{TaskAchieve_resp}")
 
     # Save to CSV
     save_to_csv([
@@ -124,7 +126,11 @@ async def ask_task1_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         context.user_data["task1_answer"],
         "",
         context.user_data.get("task1_photo", ""),
-        llm_response,
+        gen_resp,
+        gram_resp, 
+        vocab_resp,
+        TaskAchieve_resp,
+
         datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     ])
     return ConversationHandler.END
