@@ -458,3 +458,15 @@ Analysis: {}
         )
         return response.choices[0].message.content
 
+def llm_responder_t1(image_path, question, written_response):
+    task1_evaluator = IELTSTask1Evaluator()
+    task1_generator = IELTSTask1ExerciseGenerator()
+    graph_analysis = task1_evaluator.analyze_graph(image_path)
+    general_analysis = task1_evaluator.evaluate_task1_response(graph_analysis, written_response)
+    ga =  task1_evaluator.analyze_grammar(written_response)
+    lr =  task1_evaluator.analyze_vocabulary(written_response)
+    ta =  task1_evaluator.analyze_task_achievement(graph_analysis, written_response)
+    ga_exercise = task1_generator.generate_grammar_exercises(ga, written_response)
+    lr_exercise = task1_generator.generate_graph_description_exercises(graph_analysis)
+    
+    return general_analysis, ga, lr, ta, ga_exercise, lr_exercise

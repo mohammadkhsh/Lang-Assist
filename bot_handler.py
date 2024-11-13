@@ -3,8 +3,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 from datetime import datetime
 import os
 import csv
-import llm_responder
-
+from llm_responder import llm_responder_t1
 # Define states for conversation
 ASK_NAME, ASK_AGE, ASK_TASK_SELECTION, ASK_TASK1_PHOTO, ASK_TASK1_QUESTION, ASK_TASK2_QUESTION, ASK_TASK1_ANSWER, ASK_TASK2_ANSWER = range(8)
 
@@ -105,12 +104,13 @@ async def ask_task1_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     context.user_data["task1_answer"] = update.message.text
 
     # Dummy LLM assessment
-    gen_resp, gram_resp, vocab_resp, TaskAchieve_resp  = dummy_llm_assessment(
-        image_path=context.user_data.get("task1_photo", ""),
-        question=context.user_data["task1_question"],
-        sample_answer=context.user_data["task1_answer"]
+    # general_analysis, ga, lr, ta, ga_exercise, lr_exercise
+    gen_resp, gram_resp, vocab_resp, TaskAchieve_resp, gram_excer, vocab_excer  = llm_responder_t1(
+        context.user_data.get("task1_photo", ""),
+        context.user_data["task1_question"],
+        context.user_data["task1_answer"]
     )
-    await update.message.reply_text(f"GeneralAnalysis:\n{gen_resp}")
+    await update.message.reply_text(f"General Analysis:\n{gen_resp}")
     await update.message.reply_text(f"Grammer Analysis:\n{gram_resp}")
     await update.message.reply_text(f"Vocabulary Analysis:\n{vocab_resp}")
     await update.message.reply_text(f"Task Achievement Analysis:\n{TaskAchieve_resp}")
