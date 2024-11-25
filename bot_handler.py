@@ -18,6 +18,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 from llm_responder import llm_responder_t1
+from llm_responder import llm_responder_t2
 # Define states for conversation
 ASK_NAME, ASK_AGE, ASK_TASK_SELECTION, ASK_TASK1_PHOTO, ASK_TASK1_QUESTION, ASK_TASK2_QUESTION, ASK_TASK1_ANSWER, ASK_TASK2_ANSWER = range(8)
 
@@ -213,7 +214,7 @@ async def ask_task2_question(update: Update, context: ContextTypes.DEFAULT_TYPE)
 async def ask_task1_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data["task1_answer"] = update.message.text
 
-    # Dummy LLM assessment
+   
     # general_analysis, ga, lr, ta, ga_exercise, lr_exercise
     gen_resp, gram_resp, vocab_resp, TaskAchieve_resp, gram_excer, vocab_excer  = llm_responder_t1(
         context.user_data.get("task1_photo", ""),
@@ -221,13 +222,13 @@ async def ask_task1_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         context.user_data["task1_answer"]
     )
     await update.message.reply_text(f"General Analysis:\n{gen_resp}")
-    llm_outputs = [
+    llm_outputs_t1 = [
      {"title": "Grammar and Syntax", "message": gram_resp},
      {"title": "Coherence and Cohesion", "message": vocab_resp},
      {"title": "Lexical Resource", "message": TaskAchieve_resp}
      ]
     
-    await send_assessment_pdf(update, context, llm_outputs)
+    await send_assessment_pdf(update, context, llm_outputs_t1)
 
     # Save to CSV
     save_to_csv([
@@ -254,13 +255,18 @@ async def ask_task2_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     context.user_data["task2_answer"] = update.message.text
 
     # Dummy LLM assessment (no image required for Task 2)
-    llm_response = dummy_llm_assessment(
-        image_path="",
-        question=context.user_data["task2_question"],
-        sample_answer=context.user_data["task2_answer"]
+    gen_resp, gram_resp, vocab_resp, TaskAchieve_resp, gram_excer, vocab_excer  = llm_responder_t2(
+        context.user_data["task2_question"],
+        context.user_data["task2_answer"]
     )
-
-    await update.message.reply_text(f"Here is the assessment for Task 2:\n{llm_response}")
+    await update.message.reply_text(f"General Analysis:\n{gen_resp}")
+    llm_outputs_t2 = [
+     {"title": "Grammar and Syntax", "message": gram_resp},
+     {"title": "Coherence and Cohesion", "message": vocab_resp},
+     {"title": "Lexical Resource", "message": TaskAchieve_resp}
+     ]
+    
+    await send_assessment_pdf(update, context, llm_outputs_t2)
 
     # Save to CSV
     save_to_csv([
@@ -273,7 +279,11 @@ async def ask_task2_answer(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         "",
         context.user_data["task2_answer"],
         "",
-        llm_response,
+        gen_resp,
+        gram_resp, 
+        vocab_resp,
+        TaskAchieve_resp,
+
         datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     ])
     return ConversationHandler.END
