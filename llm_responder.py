@@ -43,9 +43,8 @@ class IELTSTask2ExerciseGenerator:
         self.model = "llama3-8b-8192"
 
     def generate_grammar_exercises(self, grammar_analysis, essay_content):
-        gram_exer_prompt = None
-        # why is this not assigned by any values?
-
+        # Fixed: Added the missing prompt template
+        gram_exer_prompt = grammar_exercise
         return self._get_completion(gram_exer_prompt.format(grammar_analysis, essay_content))
 
     def generate_vocabulary_exercises(self, vocab_analysis):
@@ -71,7 +70,6 @@ class IELTSTask1Evaluator:
             return base64.b64encode(image_file.read()).decode('utf-8')
 
     def analyze_graph(self, image_path, question):
-        """Analyzes the graph/chart provided for Task 1 considering the question"""
         base64_image = self.encode_image(image_path)
         response = self.client.chat.completions.create(
             messages=[
@@ -105,8 +103,8 @@ class IELTSTask1Evaluator:
         return response.choices[0].message.content
         
     def evaluate_task1_response(self, question, graph_analysis, written_response):
-        score_prompt = None 
-        # why is this not assigned by any values?
+        # Fixed: Added the missing prompt template
+        score_prompt = t1_band
         return self._get_completion(score_prompt.format(question, graph_analysis, written_response))
 
     def analyze_grammar(self, written_response):
@@ -131,8 +129,7 @@ class IELTSTask1Evaluator:
             model=self.text_model
         )
         return response.choices[0].message.content
-    
-    
+
 
 class IELTSTask1ExerciseGenerator:
     def __init__(self):
@@ -142,9 +139,6 @@ class IELTSTask1ExerciseGenerator:
     def generate_grammar_exercises(self, grammar_analysis, essay_content):
         gram_exer_prompt = grammar_exercise
         return self._get_completion(gram_exer_prompt.format(grammar_analysis, essay_content))
-    
-
-        return self._get_completion(exercise_prompt.format(graph_analysis))
 
     def generate_vocabulary_exercises(self, vocab_analysis):
         vocab_prompt = vocabulary_exercise
@@ -162,12 +156,14 @@ def llm_responder_t1(image_path, question, written_response):
     task1_evaluator = IELTSTask1Evaluator()
     task1_generator = IELTSTask1ExerciseGenerator()
     graph_analysis = task1_evaluator.analyze_graph(image_path, question)
-    general_analysis = task1_evaluator.evaluate_essay(question, graph_analysis, written_response)
-    ga =  task1_evaluator.analyze_grammar(written_response)
-    lr =  task1_evaluator.analyze_vocabulary(written_response)
-    ta =  task1_evaluator.analyze_task_achievement(question, graph_analysis, written_response)
+    # Fixed: Added missing graph_analysis parameter
+    general_analysis = task1_evaluator.evaluate_task1_response(question, graph_analysis, written_response)
+    ga = task1_evaluator.analyze_grammar(written_response)
+    lr = task1_evaluator.analyze_vocabulary(written_response)
+    ta = task1_evaluator.analyze_task_achievement(question, graph_analysis, written_response)
     ga_exercise = task1_generator.generate_grammar_exercises(ga, written_response)
     lr_exercise = task1_generator.generate_vocabulary_exercises(lr)
+    print('done')
     return general_analysis, ga, lr, ta, ga_exercise, lr_exercise
 
 
@@ -175,10 +171,20 @@ def llm_responder_t2(essay_question, essay_content):
     task2_evaluator = IELTSTask2Evaluator()
     task2_generator = IELTSTask2ExerciseGenerator()
     general_analysis = task2_evaluator.evaluate_essay(essay_question, essay_content)
-    ga =  task2_evaluator.analyze_grammar(essay_content) # 'written_response' was not defined, thus it is changed to 'essay_content': correct?
-    lr =  task2_evaluator.analyze_vocabulary(essay_content)
-    ta =  task2_evaluator.analyze_task_achievement(essay_question, essay_content)
+    ga = task2_evaluator.analyze_grammar(essay_content)
+    lr = task2_evaluator.analyze_vocabulary(essay_content)
+    ta = task2_evaluator.analyze_task_achievement(essay_question, essay_content)
     ga_exercise = task2_generator.generate_grammar_exercises(ga, essay_content)
     lr_exercise = task2_generator.generate_vocabulary_exercises(lr)
-    
+    print('done')
     return general_analysis, ga, lr, ta, ga_exercise, lr_exercise
+
+
+def llm_responder_t1(image_path, question, written_response):
+    task1_evaluator = IELTSTask1Evaluator()
+    task1_generator = IELTSTask1ExerciseGenerator()
+    graph_analysis = task1_evaluator.analyze_graph(image_path, question)
+    general_analysis = task1_evaluator.evaluate_essay(question, graph_analysis, written_response)
+    ga =  task1_evaluator.analyze_grammar(written_response)
+    lr =  task1_evaluator.analyze_vocabulary(written_response)
+    ta =  task1_evaluator.analyze_task_achievement(question, graph_analysis, written_response)
