@@ -161,7 +161,7 @@ class IELTSTask1ExerciseGenerator:
 def llm_responder_t1(image_path, question, written_response):
     task1_evaluator = IELTSTask1Evaluator()
     task1_generator = IELTSTask1ExerciseGenerator()
-    graph_analysis = task1_evaluator.analyze_graph(image_path)
+    graph_analysis = task1_evaluator.analyze_graph(image_path, question)
     general_analysis = task1_evaluator.evaluate_essay(question, graph_analysis, written_response)
     ga =  task1_evaluator.analyze_grammar(written_response)
     lr =  task1_evaluator.analyze_vocabulary(written_response)
